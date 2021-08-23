@@ -89,11 +89,10 @@ module.exports = {
 
   editForm: async (req, res) => {
     try {
-      var formId = req.body.formId
-      var data = {
-        name: req.body.name,
-        description: req.body.description,
-        questions: req.body.questions,
+      const formId = req.body._id
+      const data = {
+        groups: req.body.groups,
+        sections: req.body.sections,
       }
 
       console.log('Hi, I am from backend, this is form data that i recivied')

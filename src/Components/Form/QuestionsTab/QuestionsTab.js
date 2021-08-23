@@ -5,6 +5,7 @@ import { Grid } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import AddCircleIcon from '@material-ui/icons/AddCircle'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import Box from '@material-ui/core/Box'
 
 import formService from '../../../services/formService'
 
@@ -77,6 +78,13 @@ function QuestionsTab({ formId }) {
     }
   }
 
+  const handleOnGroupEditorSubmit = async (submittedGroupNames) => {
+    await formService.saveForm({
+      ...form,
+      groups: submittedGroupNames,
+    })
+  }
+
   if (isLoading) {
     return <CircularProgress />
   }
@@ -91,7 +99,12 @@ function QuestionsTab({ formId }) {
     >
       <Grid container direction="column" justify="center" alignItems="center">
         <Grid item xs={12} sm={8} style={{ width: '100%', paddingTop: '10px' }}>
-          <GroupsEditor groups={form.groups} />
+          <GroupsEditor
+            groups={form.groups}
+            onSubmit={handleOnGroupEditorSubmit}
+            a={1}
+          />
+          <Box m="32px" />
           <DragDropContext onDragEnd={onDragEnd}>
             {form.sections.map((section, sectionIndex) => {
               const sectionId =

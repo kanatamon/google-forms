@@ -17,7 +17,7 @@ export default {
     return res.data
   },
 
-  async autoSave(formData) {
+  async saveForm(formData) {
     const res = await axios.put(`${API_URL}/editform`, formData)
     return res.data
   },
