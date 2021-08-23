@@ -1,14 +1,10 @@
-const axios = require("axios");
+const axios = require('axios')
 
-
+const API_URL = 'http://localhost:5000'
 
 export default {
-    uploadImage(data){
-        return axios
-        .post("http://localhost:5000/", data, {
-        }).then(res => {
-            //console.log(res.data)
-            return res.data
-        })
-    }
+  async uploadImage(imageData) {
+    const res = await axios.post(API_URL, imageData, {})
+    return res.data
+  },
 }

@@ -1,37 +1,104 @@
-var mongoose = require('mongoose');
-const mongoosePaginate = require('mongoose-paginate-v2');
+const mongoose = require('mongoose')
+const mongoosePaginate = require('mongoose-paginate-v2')
 
-var FormSchema = new mongoose.Schema({
+const { RESPONSE_TYPES } = require('./shared')
 
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+/**
+ * @typedef Section
+ * @type {object}
+ * @property {string} _id
+ * @property {string} name
+ * @property {string} [description]
+ * @property {Question[]} questions
+ shownGroups
+ */
+
+/**
+ * @typedef QuestionOption
+ * @type {object}
+ * @property {string} _id
+ * @property {string} optionText
+ shownGroups
+ */
+
+/**
+ * @typedef Question
+ * @type {object}
+ * @property {string} _id
+ * @property {string} questionText
+ * @property {import('./shared').ResponseTypes} responseType
+ * @property {QuestionOption[]} [options]
+ * @property {Array<{rowText: string, shownGroups: string[]}>} [gridRows]
+ * @property {Array<{columnText: string}>} [gridColumns]
+ shownGroups
+ */
+
+/**
+ * @typedef Form
+ * @type {object}
+ * @property {string} _id
+ * @property {string[]} groups
+ * @property {string} createdBy
+ * @property {Section[]} sections
+ */
+
+const FormSchema = new mongoose.Schema(
+  {
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+
+    groups: [{ type: String }],
+
+    sections: [
+      {
+        name: String,
+        description: {
+          type: String,
+          default: '',
+        },
+        shownGroups: [{ type: String }],
+
+        questions: [
+          {
+            shownGroups: [{ type: String }],
+            responseType: {
+              type: String,
+              enum: RESPONSE_TYPES,
+              required: true,
+            },
+            questionText: String,
+            options: [
+              {
+                optionText: String,
+                shownGroups: [{ type: String }],
+              },
+            ],
+            gridRows: [
+              {
+                rowText: String,
+                shownGroups: [{ type: String }],
+              },
+            ],
+            gridColumns: [
+              {
+                columnText: String,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+
+    stared: { type: Boolean, default: false },
+
+    formType: { type: String, default: 'anonymous' },
   },
+  { timestamps: true }
+)
 
-  name: String,
+FormSchema.plugin(mongoosePaginate)
+const Form = mongoose.model('Form', FormSchema, 'Form')
 
-  description: {
-    type: String,
-    default: ""
-  },
-
-  questions : [{
-    open: {type: Boolean, default: false},
-    questionText: String,
-    questionImage: {type: String, default: ""},
-    options: [{
-      optionText : String,
-      optionImage: {type: String, default: ""},
-    }],
-  }],
-
-  stared : {type: Boolean, default : false},
-
-  formType: {type: String, default: "anonymous" }
-  
- }, {timestamps: true});
-
-FormSchema.plugin(mongoosePaginate);
-Form= mongoose.model('Form', FormSchema ,'Form');
-
-module.exports = Form; 
+module.exports = Form

@@ -1,14 +1,17 @@
-var mongoose = require('mongoose');
-const mongoosePaginate = require('mongoose-paginate-v2');
+const mongoose = require('mongoose')
+const mongoosePaginate = require('mongoose-paginate-v2')
 
-var UserSchema = new mongoose.Schema({
-  name: String,
-  email: String,
-  image: {type: String},
-  createdForms: []
- }, {timestamps: true});
+const UserSchema = new mongoose.Schema(
+  {
+    name: String,
+    email: String,
+    image: { type: String },
+    createdForms: [],
+  },
+  { timestamps: true }
+)
 
-UserSchema.plugin(mongoosePaginate);
-User = mongoose.model('User', UserSchema, 'Users');
-module.exports = User;
+UserSchema.plugin(mongoosePaginate)
+const User = mongoose.model('User', UserSchema, 'User')
 
+module.exports = User

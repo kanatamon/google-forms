@@ -1,25 +1,43 @@
-var mongoose = require('mongoose');
-const mongoosePaginate = require('mongoose-paginate-v2');
+const mongoose = require('mongoose')
+const mongoosePaginate = require('mongoose-paginate-v2')
 
-var ResponseSchema = new mongoose.Schema({
+const { RESPONSE_TYPES } = require('./shared')
 
-  formId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Form'
+const ResponseSchema = new mongoose.Schema(
+  {
+    formId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Form',
+    },
+
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+
+    response: [
+      {
+        responseType: {
+          type: String,
+          enum: RESPONSE_TYPES,
+          required: true,
+        },
+        questionId: String,
+        optionIds: [{ type: String }],
+        answerText: String,
+        gridRows: [
+          {
+            rowId: String,
+            optionIds: [{ type: String }],
+          },
+        ],
+      },
+    ],
   },
+  { timestamps: true }
+)
 
-  userId: {
-    type: String    
-  },
+ResponseSchema.plugin(mongoosePaginate)
+const Response = mongoose.model('Response', ResponseSchema, 'Response')
 
-  response : [{
-      questionId: String,
-      optionId: String,
-  }],
-  
- }, {timestamps: true});
-
-ResponseSchema.plugin(mongoosePaginate);
-Response = mongoose.model('Response', ResponseSchema ,'Response');
-
-module.exports = Response; 
+module.exports = Response

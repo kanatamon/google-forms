@@ -1,67 +1,34 @@
-import axios from 'axios';
-const API_URL = "http://localhost:5000/api/form/";
-
+import axios from 'axios'
+const API_URL = 'http://localhost:5000/api/form'
 
 export default {
-    getForms(userId){
-        return axios
-        .get(API_URL + "getuserforms/" +userId)
-        .then(response =>{
-            return response.data;
-        })
-    },
+  async getForms(userId) {
+    const res = await axios.get(`${API_URL}/getuserforms/${userId}`)
+    return res.data
+  },
 
-    createForm(data){
-        console.log(data);
-        return axios
-        .post(API_URL + "create", data)
-        .then(response =>{
-            console.log(response.data); 
-            return response.data;
-        })
-    },
+  async createForm(formData) {
+    const res = await axios.post(`${API_URL}/create`, formData)
+    return res.data
+  },
 
-    getForm(formId){
-        return axios
-        .get(API_URL + "form/"+formId)
-        .then(response =>{
-          //  console.log(response.data);
-            return response.data;   
-        })
-    },
+  async getForm(formId) {
+    const res = await axios.get(`${API_URL}/form/${formId}`)
+    return res.data
+  },
 
-    autoSave(data){
-        console.log(data);
-        return axios
-        .put(API_URL + "/editform/", data)
-        .then(response =>{
-              console.log(response.data);
-              return response.data;   
-          })
-    },
+  async autoSave(formData) {
+    const res = await axios.put(`${API_URL}/editform`, formData)
+    return res.data
+  },
 
-    submitResponse(data){
-        console.log(data);
-        return axios
-        .post(API_URL + "addresponse", data)
-        .then(response =>{
-            console.log(response.data); 
-            return response.data;
-        })
-    },
+  async submitResponse(responseData) {
+    const res = await axios.post(`${API_URL}/addresponse`, responseData)
+    return res.data
+  },
 
-    getResponse(formId){
-      //  console.log(formId);
-        return axios
-        .get(API_URL + "getresponse/" + formId)
-        .then(response =>{
-           // console.log(response.data); 
-            return response.data;
-        })
-        
-    }
-
-    
-    
-  };
-
+  async getResponse(formId) {
+    const res = await axios.get(`${API_URL}/getresponse/${formId}`)
+    return res.data
+  },
+}

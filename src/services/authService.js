@@ -1,74 +1,37 @@
-
-import axios from 'axios';
-import jwtDecode from 'jwt-decode';
-import jwt from 'jsonwebtoken';
-const API_URL = "http://localhost:5000/api/user/";
+import axios from 'axios'
+import jwtDecode from 'jwt-decode'
+const API_URL = 'http://localhost:5000/api/user/'
+const TOKEN_KEY = 'userTicket'
 //const API_URL = "http://192.168.225.23:5000/api/user/"
 
+export default {
+  isAuthenticated() {
+    const token = localStorage.getItem(TOKEN_KEY)
+    return !!token
+  },
 
+  async loginAsGuest() {
+    const guestData = {
+      name: 'Guest',
+      email: 'guest@no.exist',
+      image: null,
+    }
 
-export default   {
+    const res = await axios.post(`${API_URL}/login`, guestData)
 
-    isAuthenticated() {
-      const token = localStorage.getItem('userTicket')
-        if (token) {
-          return true
-        } else {
-          return false
-        }
-    },
+    if (!res.data.accessToken) {
+      return null
+    }
 
-    getGuestUser(){
-        return {name: "Guest 123", userId: "guest123", email: "coolboy69@gg.com"}
-    },
+    localStorage.setItem(TOKEN_KEY, JSON.stringify(res.data.accessToken))
+    return res.data.accessToken
+  },
 
-    authenticate(cb) {
-      this.isAuthenticated = true;
-      setTimeout(cb, 100); // fake async
-    },
+  logout() {
+    localStorage.removeItem(TOKEN_KEY)
+  },
 
-    signout(cb) {
-      this.isAuthenticated = false;
-      setTimeout(cb, 100);
-    },
-
-
-    loginWithGoogle(res) {
-      var data = {
-        name: res.profileObj.name,
-        email : res.profileObj.email,
-        image: res.profileObj.imageUrl
-      }
-
-      return axios
-        .post(API_URL + "login", data)
-        .then(response => {
-          console.log(response.data); 
-          if (response.data.accessToken) {
-            localStorage.setItem("userTicket", JSON.stringify(response.data.accessToken));          
-          }
-          return response.data;
-        });
-    },
-
-    loginAsGuest(){
-      var userData = {
-        name: "Cool Guest", 
-        id: "y2jsdqakq9rqyvtd4gf6g", 
-        email: "coolboy69@gg.com"
-      }
-
-      const accessToken = jwt.sign(userData, "thisisaguesttokenwithsomeshittystring8", {expiresIn: '24h'});
-      localStorage.setItem("userTicket", JSON.stringify(accessToken));   
-      return accessToken;   
-
-    },
-
-    logout() {
-      localStorage.removeItem("userTicket");
-    },
-
-    getCurrentUser() {
-       return jwtDecode(localStorage.getItem('userTicket'));
-     },
-  };
+  getCurrentUser() {
+    return jwtDecode(localStorage.getItem(TOKEN_KEY))
+  },
+}

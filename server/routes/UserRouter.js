@@ -1,6 +1,6 @@
-var router = require('express').Router()
+const router = require('express').Router()
 const UserService = require('../services/UserService')
 
-router.route("/login").get(UserService.loginGet).post(UserService.login)
+router.route('/login').post(UserService.login)
 
-module.exports = router;
+module.exports = router
