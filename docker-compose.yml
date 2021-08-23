@@ -8,13 +8,15 @@ services:
       MONGO_INITDB_DATABASE: 'form'
 
   app:
-    build: .
+    image: node:14-alpine
     depends_on:
       - 'db'
+    working_dir: /app
     volumes:
       - ./:/app
     ports:
       - '5000:5000'
       - '3000:3000'
+    command: ['npm', 'run', 'dev']
     environment:
       MONGO_URL: 'mongodb://db:27017/form'
