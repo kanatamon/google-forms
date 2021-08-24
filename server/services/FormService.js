@@ -90,18 +90,18 @@ module.exports = {
   editForm: async (req, res) => {
     try {
       const formId = req.body._id
-      const data = {
-        groups: req.body.groups,
+      const formData = {
+        groupNames: req.body.groupNames,
         sections: req.body.sections,
       }
 
       console.log('Hi, I am from backend, this is form data that i recivied')
 
-      console.log(data)
+      console.log(formData)
 
       FormModel.findByIdAndUpdate(
         formId,
-        data,
+        formData,
         { new: true },
         (err, result) => {
           if (err) {

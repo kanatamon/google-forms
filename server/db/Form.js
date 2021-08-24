@@ -10,7 +10,6 @@ const { RESPONSE_TYPES } = require('./shared')
  * @property {string} name
  * @property {string} [description]
  * @property {Question[]} questions
- shownGroups
  */
 
 /**
@@ -18,7 +17,6 @@ const { RESPONSE_TYPES } = require('./shared')
  * @type {object}
  * @property {string} _id
  * @property {string} optionText
- shownGroups
  */
 
 /**
@@ -30,14 +28,13 @@ const { RESPONSE_TYPES } = require('./shared')
  * @property {QuestionOption[]} [options]
  * @property {Array<{rowText: string, shownGroups: string[]}>} [gridRows]
  * @property {Array<{columnText: string}>} [gridColumns]
- shownGroups
  */
 
 /**
  * @typedef Form
  * @type {object}
  * @property {string} _id
- * @property {string[]} groups
+ * @property {string[]} groupNames
  * @property {string} createdBy
  * @property {Section[]} sections
  */
@@ -49,7 +46,7 @@ const FormSchema = new mongoose.Schema(
       ref: 'User',
     },
 
-    groups: [{ type: String }],
+    groupNames: [{ type: String }],
 
     sections: [
       {

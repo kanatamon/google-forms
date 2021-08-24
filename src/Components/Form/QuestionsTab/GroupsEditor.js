@@ -26,21 +26,24 @@ const generateNextPresettingGroupName = () => {
   return `Group ${groupId++}`
 }
 
-function GroupsEditor({ groups, onSubmit }) {
+function GroupsEditor({ groupNames, onSubmit }) {
   const [localGroups, setLocalGroups] = React.useState(
-    transformToLocalGroups(groups)
+    transformToLocalGroups(groupNames)
   )
-  const savedOnSubmit = React.useRef(onSubmit)
+  // We intentionally don't care whether `onSubmit` will change or not.
+  // We intended calling it to inform a change for parent when we capture
+  // any change on `localGroup` differ from the parent given `groupNames`.
+  const onSubmitRef = React.useRef(onSubmit)
+
+  const savedLocalGroupNames = localGroups
+    .filter((localGroup) => localGroup.isSaved)
+    .map((localGroup) => localGroup.name)
 
   React.useEffect(() => {
-    const savedLocalGroupNames = localGroups
-      .filter((localGroup) => localGroup.isSaved)
-      .map((localGroup) => localGroup.name)
-
-    if (JSON.stringify(savedLocalGroupNames) !== JSON.stringify(groups)) {
-      savedOnSubmit.current(savedLocalGroupNames)
+    if (!isDeepEqual(savedLocalGroupNames, groupNames)) {
+      onSubmitRef.current(savedLocalGroupNames)
     }
-  }, [localGroups, groups])
+  }, [savedLocalGroupNames, groupNames])
 
   const addNewLocalGroup = () => {
     const defaultGroupName = generateNextPresettingGroupName()
@@ -74,7 +77,7 @@ function GroupsEditor({ groups, onSubmit }) {
     setLocalGroups(newLocalGroups)
   }
 
-  const groupNames = localGroups.map((localGroup) => localGroup.name)
+  const localGroupNames = localGroups.map((localGroup) => localGroup.name)
 
   return (
     <Paper
@@ -114,7 +117,10 @@ function GroupsEditor({ groups, onSubmit }) {
               <UnsavedGroupEditor
                 key={localGroup.id}
                 {...localGroup}
-                othersGroupName={getAllButExclude(groupNames, localGroup.name)}
+                othersGroupName={getAllButExclude(
+                  localGroupNames,
+                  localGroup.name
+                )}
                 onSave={handleOnAGroupEditorSave}
                 onDelete={handleOnAGroupEditorDelete}
               />
@@ -144,6 +150,10 @@ const transformToLocalGroups = (groupNames) => {
     name: groupName,
     isSaved: true,
   }))
+}
+
+function isDeepEqual(objA, objB) {
+  return JSON.stringify(objA) === JSON.stringify(objB)
 }
 
 function getAllButExclude(strArray, excludedStr) {

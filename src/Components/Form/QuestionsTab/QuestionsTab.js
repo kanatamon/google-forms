@@ -81,7 +81,7 @@ function QuestionsTab({ formId }) {
   const handleOnGroupEditorSubmit = async (submittedGroupNames) => {
     await formService.saveForm({
       ...form,
-      groups: submittedGroupNames,
+      groupNames: submittedGroupNames,
     })
   }
 
@@ -100,9 +100,8 @@ function QuestionsTab({ formId }) {
       <Grid container direction="column" justify="center" alignItems="center">
         <Grid item xs={12} sm={8} style={{ width: '100%', paddingTop: '10px' }}>
           <GroupsEditor
-            groups={form.groups}
+            groupNames={form.groupNames}
             onSubmit={handleOnGroupEditorSubmit}
-            a={1}
           />
           <Box m="32px" />
           <DragDropContext onDragEnd={onDragEnd}>
@@ -112,7 +111,7 @@ function QuestionsTab({ formId }) {
 
               return (
                 <Droppable key={sectionId} droppableId={`${sectionId}`}>
-                  {(provided, snapshot) => (
+                  {(provided, _snapshot) => (
                     <div ref={provided.innerRef} {...provided.droppableProps}>
                       <Section section={section} />
                       <QuestionsList questions={section.questions} />
