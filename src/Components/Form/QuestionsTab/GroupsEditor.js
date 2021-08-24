@@ -1,17 +1,13 @@
 import * as React from 'react'
 
-import { Paper, Typography } from '@material-ui/core'
-
+import Paper from '@material-ui/core/Paper'
+import Typography from '@material-ui/core/Typography'
 import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
-import ListItemText from '@material-ui/core/ListItemText'
-import IconButton from '@material-ui/core/IconButton'
-import DeleteIcon from '@material-ui/icons/Delete'
 import AddIcon from '@material-ui/icons/Add'
-import SaveIcon from '@material-ui/icons/Save'
 import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
+
+import UnsavedGroupEditor from './UnsavedGroupEditor'
+import SavedGroupEditor from './SavedGroupEditor'
 
 /**
  * @typedef {object} LocalGroup
@@ -20,10 +16,9 @@ import TextField from '@material-ui/core/TextField'
  * @property {boolean} isSaved
  */
 
-let groupId = 1
-
 const generateNextPresettingGroupName = () => {
-  return `Group ${groupId++}`
+  const groupId = Date.now()
+  return `Group ${groupId}`
 }
 
 function GroupsEditor({ groupNames, onSubmit }) {
@@ -158,89 +153,6 @@ function isDeepEqual(objA, objB) {
 
 function getAllButExclude(strArray, excludedStr) {
   return strArray.filter((str) => str !== excludedStr)
-}
-
-function SavedGroupEditor({ id, name, onDelete }) {
-  const handleOnDeleteButtonClick = () => {
-    onDelete(id)
-  }
-
-  return (
-    <ListItem>
-      <ListItemText primary={name} />
-      <ListItemSecondaryAction>
-        <IconButton
-          onClick={handleOnDeleteButtonClick}
-          edge="end"
-          aria-label="delete"
-        >
-          <DeleteIcon />
-        </IconButton>
-      </ListItemSecondaryAction>
-    </ListItem>
-  )
-}
-
-function UnsavedGroupEditor({ id, name, othersGroupName, onSave, onDelete }) {
-  const [localName, setLocalName] = React.useState(name)
-
-  const updateLocalName = (event) => {
-    const { value: newName } = event.target
-    setLocalName(newName)
-  }
-
-  const handleOnSaveButtonClick = () => {
-    onSave(id, localName)
-  }
-
-  const handleOnDeleteButtonClick = () => {
-    onDelete(id)
-  }
-
-  let error = null
-
-  if (localName === '') {
-    error = {
-      label: 'Error',
-      helperText: 'Group name must NOT be empty.',
-    }
-  } else if (othersGroupName.includes(localName)) {
-    error = {
-      label: 'Error',
-      helperText:
-        'The current group name is duplicated, please use different one.',
-    }
-  }
-
-  return (
-    <ListItem>
-      <TextField
-        error={!!error}
-        id={`a-group-editor-${id}`}
-        label={error ? error.label : 'Required *'}
-        value={localName}
-        helperText={error ? error.helperText : ''}
-        variant="filled"
-        onChange={updateLocalName}
-      />
-      <ListItemSecondaryAction>
-        <IconButton
-          onClick={handleOnSaveButtonClick}
-          edge="end"
-          aria-label="save"
-        >
-          <SaveIcon />
-        </IconButton>
-        <IconButton
-          onClick={handleOnDeleteButtonClick}
-          edge="end"
-          aria-label="delete"
-        >
-          <DeleteIcon />
-        </IconButton>
-      </ListItemSecondaryAction>
-    </ListItem>
-  )
 }
 
 export default GroupsEditor
