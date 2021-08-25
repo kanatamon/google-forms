@@ -6,6 +6,9 @@ import List from '@material-ui/core/List'
 import AddIcon from '@material-ui/icons/Add'
 import Button from '@material-ui/core/Button'
 
+import * as ArrayUtils from '../../util/array-utils'
+import * as ObjectUtils from '../../util/object-utils'
+
 import UnsavedGroupEditor from './UnsavedGroupEditor'
 import SavedGroupEditor from './SavedGroupEditor'
 
@@ -35,7 +38,7 @@ function GroupsEditor({ groupNames, onSubmit }) {
     .map((localGroup) => localGroup.name)
 
   React.useEffect(() => {
-    if (!isDeepEqual(savedLocalGroupNames, groupNames)) {
+    if (!ObjectUtils.isDeepEqual(savedLocalGroupNames, groupNames)) {
       onSubmitRef.current(savedLocalGroupNames)
     }
   }, [savedLocalGroupNames, groupNames])
@@ -112,7 +115,7 @@ function GroupsEditor({ groupNames, onSubmit }) {
               <UnsavedGroupEditor
                 key={localGroup.id}
                 {...localGroup}
-                othersGroupName={getAllButExclude(
+                othersGroupName={ArrayUtils.getAllButExclude(
                   localGroupNames,
                   localGroup.name
                 )}
@@ -145,14 +148,6 @@ const transformToLocalGroups = (groupNames) => {
     name: groupName,
     isSaved: true,
   }))
-}
-
-function isDeepEqual(objA, objB) {
-  return JSON.stringify(objA) === JSON.stringify(objB)
-}
-
-function getAllButExclude(strArray, excludedStr) {
-  return strArray.filter((str) => str !== excludedStr)
 }
 
 export default GroupsEditor

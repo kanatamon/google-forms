@@ -3,7 +3,7 @@ import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 
 import { Grid } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
-import AddCircleIcon from '@material-ui/icons/AddCircle'
+import AddIcon from '@material-ui/icons/Add'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Box from '@material-ui/core/Box'
 
@@ -38,10 +38,7 @@ function QuestionsTab({ formId }) {
         if (formId) {
           setIsLoading(true)
 
-          let form = await formService.getForm(formId)
-          if (checkDoesFormHasNoAnyQuestion(form)) {
-            form = generatePresettingForm(form)
-          }
+          const form = await formService.getForm(formId)
           setForm(form)
 
           setIsLoading(false)
@@ -51,17 +48,23 @@ function QuestionsTab({ formId }) {
     [formId]
   )
 
-  const addQuestion = (sectionIndex) => {
+  const addQuestion = async (sectionIndex) => {
     const targetSection = form.sections[sectionIndex]
     targetSection.questions = [
       ...targetSection.questions,
       generatePresettingQuestion(),
     ]
 
-    setForm({ ...form })
+    const savingSectionsForm = {
+      _id: form._id,
+      sections: form.sections,
+    }
+    const savedForm = await formService.saveForm(savingSectionsForm)
+
+    setForm(savedForm)
   }
 
-  const onDragEnd = (result) => {
+  const onDragEnd = async (result) => {
     if (!result.destination) {
       return
     }
@@ -70,19 +73,53 @@ function QuestionsTab({ formId }) {
     const hasSwapOnSameSection = source.droppableId === destination.droppableId
 
     if (hasSwapOnSameSection) {
-      const newForm = swapTwoQuestionsOnSameSection(form, source, destination)
-      setForm(newForm)
+      const swappedQuestionsForm = swapTwoQuestionsOnSameSection(
+        form,
+        source,
+        destination
+      )
+
+      const savingSectionsForm = {
+        _id: swappedQuestionsForm._id,
+        sections: swappedQuestionsForm.sections,
+      }
+      const savedForm = await formService.saveForm(savingSectionsForm)
+      setForm(savedForm)
     }
 
     if (!hasSwapOnSameSection) {
+      // TODO: move question to dropped section
     }
   }
 
   const handleOnGroupEditorSubmit = async (submittedGroupNames) => {
-    await formService.saveForm({
-      ...form,
+    const savingForm = {
+      _id: form._id,
       groupNames: submittedGroupNames,
-    })
+    }
+    const savedForm = await formService.saveForm(savingForm)
+    setForm(savedForm)
+  }
+
+  const handleOnAnSectionSave = async (aSavingSection) => {
+    const { sections } = form
+    const savingSectionIndex = sections.findIndex(
+      (formSection) => formSection._id === aSavingSection._id
+    )
+
+    if (savingSectionIndex === -1) {
+      throw new Error(`Can't find a section to save`)
+    }
+
+    sections[savingSectionIndex] = aSavingSection
+
+    const savingAnSectionForm = {
+      _id: form._id,
+      sections,
+    }
+    const savedForm = await formService.saveForm(savingAnSectionForm)
+
+    setForm(savedForm)
   }
 
   if (isLoading) {
@@ -113,12 +150,16 @@ function QuestionsTab({ formId }) {
                 <Droppable key={sectionId} droppableId={`${sectionId}`}>
                   {(provided, _snapshot) => (
                     <div ref={provided.innerRef} {...provided.droppableProps}>
-                      <Section section={section} />
+                      <Section
+                        section={section}
+                        availableGroupNames={form.groupNames}
+                        onSave={handleOnAnSectionSave}
+                      />
                       <QuestionsList questions={section.questions} />
                       <Button
                         variant="contained"
                         onClick={() => addQuestion(sectionIndex)}
-                        endIcon={<AddCircleIcon />}
+                        startIcon={<AddIcon />}
                         style={{ margin: '5px' }}
                       >
                         Add Question
@@ -151,35 +192,6 @@ const generatePresettingQuestion = () => {
       },
     ],
   }
-}
-
-/**
- * Return a given form with default question and option
- * @param {Form} form
- * @returns {Form} a form with some modification
- */
-const generatePresettingForm = (form) => {
-  return {
-    ...form,
-    sections: [
-      {
-        ...form.sections[0],
-        questions: [generatePresettingQuestion()],
-      },
-    ],
-  }
-}
-
-/**
- * @param {Form} form
- * @returns {boolean}
- */
-const checkDoesFormHasNoAnyQuestion = (form) => {
-  return (
-    form &&
-    form.sections.length === 1 &&
-    form.sections[0].questions.length === 0
-  )
 }
 
 /**

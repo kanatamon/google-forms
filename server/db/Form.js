@@ -10,6 +10,7 @@ const { RESPONSE_TYPES } = require('./shared')
  * @property {string} name
  * @property {string} [description]
  * @property {Question[]} questions
+ * @property {string[]} groupNamesToShow
  */
 
 /**
@@ -17,6 +18,8 @@ const { RESPONSE_TYPES } = require('./shared')
  * @type {object}
  * @property {string} _id
  * @property {string} optionText
+ * @property {string[]} groupNamesToShow
+ * @property {string[]} registerGroupNames
  */
 
 /**
@@ -26,8 +29,9 @@ const { RESPONSE_TYPES } = require('./shared')
  * @property {string} questionText
  * @property {import('./shared').ResponseTypes} responseType
  * @property {QuestionOption[]} [options]
- * @property {Array<{rowText: string, shownGroups: string[]}>} [gridRows]
+ * @property {Array<{rowText: string, groupNamesToShow: string[]}>} [gridRows]
  * @property {Array<{columnText: string}>} [gridColumns]
+ * @property {string[]} groupNamesToShow
  */
 
 /**
@@ -55,11 +59,11 @@ const FormSchema = new mongoose.Schema(
           type: String,
           default: '',
         },
-        shownGroups: [{ type: String }],
+        groupNamesToShow: [{ type: String }],
 
         questions: [
           {
-            shownGroups: [{ type: String }],
+            groupNamesToShow: [{ type: String }],
             responseType: {
               type: String,
               enum: RESPONSE_TYPES,
@@ -69,13 +73,14 @@ const FormSchema = new mongoose.Schema(
             options: [
               {
                 optionText: String,
-                shownGroups: [{ type: String }],
+                groupNamesToShow: [{ type: String }],
+                groupNamesToRegisterWhenOptionIsSelected: [{ type: String }],
               },
             ],
             gridRows: [
               {
                 rowText: String,
-                shownGroups: [{ type: String }],
+                groupNamesToShow: [{ type: String }],
               },
             ],
             gridColumns: [
