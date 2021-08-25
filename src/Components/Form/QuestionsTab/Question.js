@@ -28,16 +28,17 @@ function Question({ index, question }) {
   }
 
   return (
-    <div style={{ marginBottom: '15px' }}>
-      <div style={{ width: '100%', marginBottom: '-7px' }}>
-        <DragIndicatorIcon
-          style={{
-            transform: 'rotate(-90deg)',
-            color: '#DAE0E2',
-          }}
-          fontSize="small"
-        />
-      </div>
+    <div>
+      <DragIndicatorIcon
+        style={{
+          transform: 'rotate(-90deg)',
+          color: '#DAE0E2',
+          display: 'block',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+        }}
+        fontSize="small"
+      />
       <Accordion
         onChange={() => {
           toggleExpand()
@@ -48,7 +49,7 @@ function Question({ index, question }) {
           aria-controls="panel1a-content"
           id="panel1a-header"
           elevation={1}
-          style={{ width: '100%' }}
+          style={{ width: '100%', display: hasExpanded ? 'none' : 'flex' }}
         >
           {!hasExpanded ? (
             <QuestionPreview no={index + 1} question={localQuestion} />
