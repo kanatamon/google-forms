@@ -8,6 +8,8 @@ import CloseIcon from '@material-ui/icons/Close'
 import Radio from '@material-ui/core/Radio'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 
+import * as ObjectUtils from '../../util/object-utils'
+
 import MultipleSelect from './MultipleSelect'
 import { useGroupNames } from './group-names-context'
 
@@ -36,23 +38,26 @@ function QuestionEditor({ no, question, onChange }) {
   }
 
   const addAnOption = () => {
-    const { options } = question
+    const editingQuestion = ObjectUtils.deepClone(question)
+
+    const { options } = editingQuestion
     const editedOptions = [...options, generateLocalOption()]
 
     onChange({
-      ...question,
+      ...editingQuestion,
       options: editedOptions,
     })
   }
 
   const removeAnOption = (optionIndex) => {
-    const { options } = question
+    const editingQuestion = ObjectUtils.deepClone(question)
 
+    const { options } = editingQuestion
     options.splice(optionIndex, 1)
     const editedOptions = [...options]
 
     onChange({
-      ...question,
+      ...editingQuestion,
       options: editedOptions,
     })
   }
@@ -114,7 +119,7 @@ function QuestionEditor({ no, question, onChange }) {
 
       <div style={{ width: '100%' }}>
         {question.options.map((option, optionIndex) => (
-          <div key={optionIndex}>
+          <div key={option._id ? option._id : option._local_id}>
             <div
               style={{
                 display: 'flex',
@@ -170,11 +175,12 @@ function QuestionEditor({ no, question, onChange }) {
   )
 }
 
-let optionCounter = 2
+let localOptionId = 2
 
 function generateLocalOption() {
   return {
-    optionText: `Option ${optionCounter++}`,
+    _local_id: localOptionId,
+    optionText: `Option ${localOptionId++}`,
   }
 }
 
