@@ -3,7 +3,7 @@ import { Draggable } from 'react-beautiful-dnd'
 
 import Question from './Question'
 
-function QuestionsList({ questions }) {
+function QuestionsList({ sectionId, questions, onAQuestionSave }) {
   return (
     <>
       {questions.map((question, index) => {
@@ -22,7 +22,12 @@ function QuestionsList({ questions }) {
                 {...provided.draggableProps}
                 {...provided.dragHandleProps}
               >
-                <Question index={index} question={question} />
+                <Question
+                  no={index + 1}
+                  sectionId={sectionId}
+                  question={question}
+                  onSave={onAQuestionSave}
+                />
               </div>
             )}
           </Draggable>

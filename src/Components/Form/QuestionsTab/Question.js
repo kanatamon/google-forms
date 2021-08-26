@@ -6,12 +6,19 @@ import AccordionDetails from '@material-ui/core/AccordionDetails'
 import AccordionActions from '@material-ui/core/AccordionActions'
 import Divider from '@material-ui/core/Divider'
 import DragIndicatorIcon from '@material-ui/icons/DragIndicator'
+import IconButton from '@material-ui/core/IconButton'
+
+import SaveIcon from '@material-ui/icons/Save'
+import VisibilityIcon from '@material-ui/icons/Visibility'
+import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline'
+import FilterNoneIcon from '@material-ui/icons/FilterNone'
+
+import * as ObjectUtils from '../../util/object-utils'
 
 import QuestionPreview from './QuestionPreview'
 import QuestionEditor from './QuestionEditor'
-import QuestionEditorActions from './QuestionEditorActions'
 
-function Question({ index, question }) {
+function Question({ sectionId, no, question, onSave = () => {} }) {
   const [localQuestion, setLocalQuestion] = React.useState(question)
   const [hasExpanded, setHasExpanded] = React.useState(false)
 
@@ -26,6 +33,13 @@ function Question({ index, question }) {
   const handleOnLocalQuestionChange = (editedQuestion) => {
     setLocalQuestion(editedQuestion)
   }
+
+  const save = () => {
+    showPreview()
+    onSave(sectionId, localQuestion)
+  }
+
+  const isNeedToSave = !ObjectUtils.isDeepEqual(question, localQuestion)
 
   return (
     <div>
@@ -52,21 +66,34 @@ function Question({ index, question }) {
           style={{ width: '100%', display: hasExpanded ? 'none' : 'flex' }}
         >
           {!hasExpanded ? (
-            <QuestionPreview no={index + 1} question={localQuestion} />
+            <QuestionPreview no={no} question={localQuestion} />
           ) : null}
         </AccordionSummary>
         <AccordionDetails>
           <QuestionEditor
-            // TODO: Remove props `index` from this component
-            index={index}
-            no={index + 1}
+            no={no}
             question={localQuestion}
             onChange={handleOnLocalQuestionChange}
           />
         </AccordionDetails>
         <Divider />
         <AccordionActions>
-          <QuestionEditorActions onShowPreviewClick={showPreview} />
+          {isNeedToSave ? (
+            <IconButton aria-label="View" onClick={save}>
+              <SaveIcon />
+            </IconButton>
+          ) : (
+            <IconButton aria-label="View" onClick={showPreview}>
+              <VisibilityIcon />
+            </IconButton>
+          )}
+          <IconButton aria-label="Copy" onClick={() => {}}>
+            <FilterNoneIcon />
+          </IconButton>
+          <Divider orientation="vertical" flexItem />
+          <IconButton aria-label="delete" onClick={() => {}}>
+            <DeleteOutlineIcon />
+          </IconButton>
         </AccordionActions>
       </Accordion>
     </div>

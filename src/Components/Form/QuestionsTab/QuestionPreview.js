@@ -1,22 +1,39 @@
 import * as React from 'react'
 
-import { Typography } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles'
 import Radio from '@material-ui/core/Radio'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
+import Typography from '@material-ui/core/Typography'
+import Chip from '@material-ui/core/Chip'
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    marginLeft: '3px',
+    paddingTop: '15px',
+    paddingBottom: '15px',
+  },
+  chips: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  chip: {
+    margin: 2,
+  },
+}))
 
 function QuestionPreview({ no, question }) {
+  const classes = useStyles()
+
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        marginLeft: '3px',
-        paddingTop: '15px',
-        paddingBottom: '15px',
-      }}
-    >
-      {/* <TextField id="standard-basic" label=" " value="Question" InputProps={{ disableUnderline: true }} />  */}
+    <div className={classes.root}>
+      <div className={classes.chips}>
+        {question.groupNamesToShow.map((groupName) => (
+          <Chip key={groupName} label={groupName} className={classes.chip} />
+        ))}
+      </div>
 
       <Typography variant="subtitle1" style={{ marginLeft: '0px' }}>
         {no}. {question.questionText}

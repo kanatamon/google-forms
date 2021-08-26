@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { Typography } from '@material-ui/core'
+import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
@@ -8,44 +8,62 @@ import CloseIcon from '@material-ui/icons/Close'
 import Radio from '@material-ui/core/Radio'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 
-function QuestionEditor({ no, index, question, onChange }) {
-  const handleOptionValue = (text, i, j) => {
-    // var optionsOfQuestion = [...questions]
-    // optionsOfQuestion[i].options[j].optionText = text
-    // //newMembersEmail[i]= email;
-    // setQuestions(optionsOfQuestion)
-  }
+import MultipleSelect from './MultipleSelect'
+import { useGroupNames } from './group-names-context'
 
-  const addOption = (i) => {
-    // var optionsOfQuestion = [...questions]
-    // if (optionsOfQuestion[i].options.length < 5) {
-    //   optionsOfQuestion[i].options.push({
-    //     optionText: 'Option ' + (optionsOfQuestion[i].options.length + 1),
-    //   })
-    // } else {
-    //   console.log('Max  5 options ')
-    // }
-    // //console.log(optionsOfQuestion);
-    // setQuestions(optionsOfQuestion)
-  }
+/**
+ * @typedef {import('../../../../server/db/Form').Question} Question
+ * @typedef {import('../../../../server/db/Form').QuestionOption} QuestionOption
+ */
 
-  const removeAnOption = (optionIndex) => {
-    // var optionsOfQuestion = [...questions]
-    // if (optionsOfQuestion[i].options.length > 1) {
-    //   optionsOfQuestion[i].options.splice(j, 1)
-    //   setQuestions(optionsOfQuestion)
-    //   console.log(i + '__' + j)
-    // }
-    onChange((prevQuestion) => {
-      const { options } = prevQuestion
-      options.splice(optionIndex, 1)
-      const editedOptions = [...options]
-      return { ...prevQuestion, options: editedOptions }
+/**
+ * @param {object} props
+ * @param {string | number} props.no
+ * @param {Question} props.question
+ * @param {Function} props.onChange
+ */
+function QuestionEditor({ no, question, onChange }) {
+  const availableGroupNames = useGroupNames()
+
+  const handleOnAnOptionTextChange = (newOptionText, optionIndex) => {
+    const { options: editedOptions } = question
+    editedOptions[optionIndex].optionText = newOptionText
+
+    onChange({
+      ...question,
+      options: [...editedOptions],
     })
   }
 
-  const handleOnQuestionTextChange = (text) => {
-    onChange((prevQuestion) => ({ ...prevQuestion, questionText: text }))
+  const addAnOption = () => {
+    const { options } = question
+    const editedOptions = [...options, generateLocalOption()]
+
+    onChange({
+      ...question,
+      options: editedOptions,
+    })
+  }
+
+  const removeAnOption = (optionIndex) => {
+    const { options } = question
+
+    options.splice(optionIndex, 1)
+    const editedOptions = [...options]
+
+    onChange({
+      ...question,
+      options: editedOptions,
+    })
+  }
+
+  const handleOnChangeNatively = (event) => {
+    const { name, value } = event.target
+
+    onChange({
+      ...question,
+      [name]: value,
+    })
   }
 
   return (
@@ -54,31 +72,44 @@ function QuestionEditor({ no, index, question, onChange }) {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-start',
-        marginLeft: '15px',
-        marginTop: '-15px',
+        width: '100%',
       }}
     >
+      <MultipleSelect
+        id={`question-editor-groups-select-${question._id}`}
+        label="Show for the following groups"
+        options={availableGroupNames}
+        name="groupNamesToShow"
+        values={question.groupNamesToShow}
+        onChange={handleOnChangeNatively}
+      />
       <div
         style={{
           display: 'flex',
           width: '100%',
-          justifyContent: 'space-between',
+          marginBottom: '32px',
         }}
       >
-        <Typography style={{ marginTop: '20px' }}>{no}.</Typography>
-        <TextField
-          fullWidth={true}
-          placeholder="Question Text"
-          style={{ marginBottom: '18px' }}
-          rows={2}
-          rowsMax={20}
-          multiline={true}
-          value={question.questionText}
-          variant="filled"
-          onChange={(event) => {
-            handleOnQuestionTextChange(event.target.value)
+        <Typography style={{ marginTop: '24px' }}>{no}.</Typography>
+        <div
+          style={{
+            width: '100%',
+            paddingLeft: '16px',
+            paddingRight: '48px',
           }}
-        />
+        >
+          <TextField
+            fullWidth
+            autoFocus
+            margin="dense"
+            id={`question-editor-question-text-${question._id}`}
+            label="Question"
+            type="text"
+            value={question.questionText}
+            name="questionText"
+            onChange={handleOnChangeNatively}
+          />
+        </div>
       </div>
 
       <div style={{ width: '100%' }}>
@@ -99,9 +130,9 @@ function QuestionEditor({ no, index, question, onChange }) {
                 fullWidth={true}
                 placeholder="Option text"
                 style={{ marginTop: '5px' }}
-                value={question.options[optionIndex].optionText}
-                onChange={(e) => {
-                  handleOptionValue(e.target.value, index, optionIndex)
+                value={option.optionText}
+                onChange={({ target }) => {
+                  handleOnAnOptionTextChange(target.value, optionIndex)
                 }}
               />
               <IconButton
@@ -124,9 +155,7 @@ function QuestionEditor({ no, index, question, onChange }) {
           label={
             <Button
               size="small"
-              onClick={() => {
-                addOption()
-              }}
+              onClick={addAnOption}
               style={{
                 textTransform: 'none',
                 marginLeft: '-5px',
@@ -139,6 +168,14 @@ function QuestionEditor({ no, index, question, onChange }) {
       </div>
     </div>
   )
+}
+
+let optionCounter = 2
+
+function generateLocalOption() {
+  return {
+    optionText: `Option ${optionCounter++}`,
+  }
 }
 
 export default QuestionEditor

@@ -21,3 +21,12 @@ function getObjectIdentical(unknownOrderedObj) {
 export function isDeepEqual(objA, objB) {
   return getObjectIdentical(objA) === getObjectIdentical(objB)
 }
+
+/**
+ * Deep clone object but without attached functions
+ * @param {object} obj
+ * @returns {object} a given object with new reference
+ */
+export function deepClone(obj) {
+  return JSON.parse(JSON.stringify(obj))
+}

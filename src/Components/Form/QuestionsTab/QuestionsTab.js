@@ -8,10 +8,12 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import Box from '@material-ui/core/Box'
 
 import formService from '../../../services/formService'
+import * as ObjectUtils from '../../util/object-utils'
 
 import GroupsEditor from './GroupsEditor'
 import QuestionsList from './QuestionsList'
 import Section from './Section'
+import { GroupNamesProvider } from './group-names-context'
 
 /**
  * @typedef {import('../../../../server/db/Form').Form} Form
@@ -92,6 +94,7 @@ function QuestionsTab({ formId }) {
     }
   }
 
+  // TODO: rename `submit` to `save`
   const handleOnGroupEditorSubmit = async (submittedGroupNames) => {
     const savingForm = {
       _id: form._id,
@@ -101,7 +104,7 @@ function QuestionsTab({ formId }) {
     setForm(savedForm)
   }
 
-  const handleOnAnSectionSave = async (aSavingSection) => {
+  const handleOnASectionSave = async (aSavingSection) => {
     const { sections } = form
     const savingSectionIndex = sections.findIndex(
       (formSection) => formSection._id === aSavingSection._id
@@ -113,11 +116,28 @@ function QuestionsTab({ formId }) {
 
     sections[savingSectionIndex] = aSavingSection
 
-    const savingAnSectionForm = {
+    const savingSectionForm = {
       _id: form._id,
       sections,
     }
-    const savedForm = await formService.saveForm(savingAnSectionForm)
+    const savedForm = await formService.saveForm(savingSectionForm)
+
+    setForm(savedForm)
+  }
+
+  const handleOnAQuestionSave = async (savingSectionId, aSavingQuestion) => {
+    const { sections } = form
+    const savingSections = updateSectionsWithASavingQuestion(
+      sections,
+      savingSectionId,
+      aSavingQuestion
+    )
+
+    const savingSectionForm = {
+      _id: form._id,
+      sections: savingSections,
+    }
+    const savedForm = await formService.saveForm(savingSectionForm)
 
     setForm(savedForm)
   }
@@ -141,36 +161,53 @@ function QuestionsTab({ formId }) {
             onSubmit={handleOnGroupEditorSubmit}
           />
           <Box m="32px" />
-          <DragDropContext onDragEnd={onDragEnd}>
-            {form.sections.map((section, sectionIndex) => {
-              const sectionId =
-                section._id !== undefined ? section._id : section._local_id
+          <GroupNamesProvider groupNames={form.groupNames}>
+            <DragDropContext onDragEnd={onDragEnd}>
+              {form.sections.map((section, sectionIndex) => {
+                const sectionId =
+                  section._id !== undefined ? section._id : section._local_id
 
-              return (
-                <Droppable key={sectionId} droppableId={`${sectionId}`}>
-                  {(provided, _snapshot) => (
-                    <div ref={provided.innerRef} {...provided.droppableProps}>
-                      <Section
-                        section={section}
-                        availableGroupNames={form.groupNames}
-                        onSave={handleOnAnSectionSave}
-                      />
-                      <QuestionsList questions={section.questions} />
-                      <Button
-                        variant="contained"
-                        onClick={() => addQuestion(sectionIndex)}
-                        startIcon={<AddIcon />}
-                        style={{ margin: '5px' }}
+                return (
+                  <Droppable key={sectionId} droppableId={`${sectionId}`}>
+                    {(provided, _snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '24px',
+                        }}
                       >
-                        Add Question
-                      </Button>
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              )
-            })}
-          </DragDropContext>
+                        <Section
+                          section={section}
+                          availableGroupNames={form.groupNames}
+                          onSave={handleOnASectionSave}
+                        />
+                        <QuestionsList
+                          sectionId={section._id}
+                          questions={section.questions}
+                          onAQuestionSave={handleOnAQuestionSave}
+                        />
+                        <Button
+                          style={{
+                            width: 'fit-content',
+                            alignSelf: 'center',
+                          }}
+                          variant="contained"
+                          onClick={() => addQuestion(sectionIndex)}
+                          startIcon={<AddIcon />}
+                        >
+                          Add New Question
+                        </Button>
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                )
+              })}
+            </DragDropContext>
+          </GroupNamesProvider>
         </Grid>
       </Grid>
     </div>
@@ -245,6 +282,43 @@ const getSectionById = (sections, targetSectionId) => {
       section._id !== undefined ? section._id : section._local_id
     return sectionId === targetSectionId
   })
+}
+
+/**
+ * @param {Section[]} sourceSections
+ * @param {string | number} savingSectionId
+ * @param {Question} aSavingQuestion
+ * @returns {Section[]} a deep clone of modified sourceSections
+ */
+function updateSectionsWithASavingQuestion(
+  sourceSections,
+  savingSectionId,
+  aSavingQuestion
+) {
+  const updatingSections = ObjectUtils.deepClone(sourceSections)
+
+  const savingSectionIndex = updatingSections.findIndex(
+    (formSection) => formSection._id === savingSectionId
+  )
+
+  if (savingSectionIndex === -1) {
+    throw new Error(`Can't find a section to save`)
+  }
+
+  const savingSection = updatingSections[savingSectionIndex]
+  const { questions } = savingSection
+
+  const aSavingQuestionIndex = questions.findIndex(
+    (question) => question._id === aSavingQuestion._id
+  )
+
+  if (aSavingQuestionIndex === -1) {
+    throw new Error(`Can't find a question to save`)
+  }
+
+  questions[aSavingQuestionIndex] = aSavingQuestion
+
+  return updatingSections
 }
 
 export default QuestionsTab
