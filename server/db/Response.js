@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const mongoosePaginate = require('mongoose-paginate-v2')
 
-const { RESPONSE_TYPES } = require('./shared')
+const { RESPONSE_TYPES } = require('../../src/shared/constants')
 
 const ResponseSchema = new mongoose.Schema(
   {

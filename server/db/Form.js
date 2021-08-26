@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const mongoosePaginate = require('mongoose-paginate-v2')
 
-const { RESPONSE_TYPES } = require('./shared')
+const { RESPONSE_TYPES } = require('../../src/shared/constants')
 
 /**
  * @typedef Section
@@ -27,7 +27,7 @@ const { RESPONSE_TYPES } = require('./shared')
  * @type {object}
  * @property {string} _id
  * @property {string} questionText
- * @property {import('./shared').ResponseTypes} responseType
+ * @property {import('../../src/shared/constants').ResponseTypes} responseType
  * @property {QuestionOption[]} [options]
  * @property {Array<{rowText: string, groupNamesToShow: string[]}>} [gridRows]
  * @property {Array<{columnText: string}>} [gridColumns]

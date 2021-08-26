@@ -7,6 +7,9 @@ import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
 import Radio from '@material-ui/core/Radio'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
+import MenuItem from '@material-ui/core/MenuItem'
+
+import { RESPONSE_TYPES } from '../../../shared/constants'
 
 import * as ObjectUtils from '../../util/object-utils'
 
@@ -80,14 +83,40 @@ function QuestionEditor({ no, question, onChange }) {
         width: '100%',
       }}
     >
-      <MultipleSelect
-        id={`question-editor-groups-select-${question._id}`}
-        label="Show for the following groups"
-        options={availableGroupNames}
-        name="groupNamesToShow"
-        values={question.groupNamesToShow}
-        onChange={handleOnChangeNatively}
-      />
+      <div
+        style={{
+          display: 'flex',
+          width: '100%',
+          justifyContent: 'space-between',
+          gap: '24px',
+          marginBottom: '24px',
+        }}
+      >
+        <MultipleSelect
+          style={{ flex: 1 }}
+          id={`question-editor-groups-select-${question._id}`}
+          label="Show for the following groups"
+          options={availableGroupNames}
+          name="groupNamesToShow"
+          values={question.groupNamesToShow}
+          onChange={handleOnChangeNatively}
+        />
+        <TextField
+          style={{ flex: 1 }}
+          id={`question-editor-response-type-select-${question._id}`}
+          select
+          label="Select response type"
+          name="responseType"
+          value={question.responseType}
+          onChange={handleOnChangeNatively}
+        >
+          {RESPONSE_TYPES.map((responseType) => (
+            <MenuItem key={responseType} value={responseType}>
+              {covertCamelCaseToSentenceCase(responseType)}
+            </MenuItem>
+          ))}
+        </TextField>
+      </div>
       <div
         style={{
           display: 'flex',
@@ -182,6 +211,15 @@ function generateLocalOption() {
     _local_id: localOptionId,
     optionText: `Option ${localOptionId++}`,
   }
+}
+
+/**
+ * eg. 'HelloWorld' to 'Hello World'
+ * @param {string} str
+ * @returns {string}
+ */
+function covertCamelCaseToSentenceCase(str) {
+  return str.replace(/[A-Z]/g, ' $&').trim()
 }
 
 export default QuestionEditor

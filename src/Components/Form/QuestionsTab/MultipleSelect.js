@@ -43,6 +43,7 @@ function MultipleSelect({
   label,
   options,
   values,
+  style,
   onChange = () => {},
 }) {
   const classes = useStyles()
@@ -66,7 +67,7 @@ function MultipleSelect({
   const usingValues = isControlledComponent ? values : selectedOptions
 
   return (
-    <FormControl className={classes.formControl}>
+    <FormControl className={classes.formControl} style={style}>
       <InputLabel id={inputLabelId}>{label}</InputLabel>
       <Select
         name={name}
